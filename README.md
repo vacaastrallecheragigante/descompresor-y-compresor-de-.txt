@@ -36,7 +36,7 @@ Este proyecto implementa una aplicación para la compresión y descompresión de
 
 - **Reducción del tamaño de archivos**: Útil para almacenar y transferir archivos de texto más pequeños.
 - **Fácil de usar**: No es necesario tener conocimientos de programación para usar la interfaz gráfica.
-- **Código abierto**: El código está disponible para que otros puedan aprender, modificar o contribuir.
+
 
 
 
