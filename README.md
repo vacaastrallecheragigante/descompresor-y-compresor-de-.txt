@@ -70,10 +70,13 @@ Al guardar los datos comprimidos en formato binario, se mejora la velocidad de e
 ### Como usar el compresor 
 al descargar el compresor que es un archivo.py puede crear un acceso directo en el escritorio, ahi puede abrir con doble click se le presentara una interefaz grafica simple y facil de manipular 
 ahi se presentan dos opciones las cuales son comprimir y descompromir
-##comprimir 
-darle click al boton de comprirmir archivo ahi puedes decidir que archivo .txt deseas comprimir 
-##descomprimir 
-darle click al boton de descomprimir achivo elegir el .bin para comvertirlo en un archivo entendible que seria un .txt
+
+- **Descomprimir**: 
+
+darle click al boton de comprirmir archivo ahi puedes decidir que archivo`.txt` deseas comprimir 
+
+- **Descomprimirr**:  
+darle click al boton de descomprimir achivo elegir el `.bin`para comvertirlo en un archivo entendible que seria un .txt
 
 
 
