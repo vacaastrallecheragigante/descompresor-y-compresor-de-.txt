@@ -67,3 +67,14 @@ Además, el formato binario facilita la manipulación de datos a nivel de byte, 
 ### Velocidad de Procesamiento
 Al guardar los datos comprimidos en formato binario, se mejora la velocidad de escritura y lectura del archivo, ya que se evitan las conversiones innecesarias entre formatos de texto y binario durante las operaciones de almacenamiento y recuperación.
 
+### Como usar el compresor 
+al descargar el compresor que es un archivo.py puede crear un acceso directo en el escritorio, ahi puede abrir con doble click se le presentara una interefaz grafica simple y facil de manipular 
+ahi se presentan dos opciones las cuales son comprimir y descompromir
+##comprimir 
+darle click al boton de comprirmir archivo ahi puedes decidir que archivo .txt deseas comprimir 
+##descomprimir 
+darle click al boton de descomprimir achivo elegir el .bin para comvertirlo en un archivo entendible que seria un .txt
+
+
+
+
