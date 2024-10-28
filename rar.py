@@ -1,9 +1,8 @@
-
-import heapq
 from collections import defaultdict
 import tkinter as tk
 from tkinter import filedialog, messagebox
-import json  # Para manejar los códigos de Huffman
+import json
+import os  # Para eliminar archivos
 
 # Clase para el nodo del árbol de Huffman
 class Nodo:
@@ -12,34 +11,27 @@ class Nodo:
         self.frecuencia = frecuencia
         self.izquierda = None
         self.derecha = None
-    
-    def __lt__(self, otro):
-        return self.frecuencia < otro.frecuencia
 
 # Función para construir el árbol de Huffman
 def construir_arbol_huffman(frecuencia):
-    heap = [Nodo(caracter, freq) for caracter, freq in frecuencia.items()]
-    heapq.heapify(heap)
-
-    while len(heap) > 1:
-        izquierda = heapq.heappop(heap)
-        derecha = heapq.heappop(heap)
+    nodos = [Nodo(caracter, freq) for caracter, freq in frecuencia.items()]
+    while len(nodos) > 1:
+        nodos.sort(key=lambda nodo: nodo.frecuencia)
+        izquierda = nodos.pop(0)
+        derecha = nodos.pop(0)
         fusionado = Nodo(None, izquierda.frecuencia + derecha.frecuencia)
         fusionado.izquierda = izquierda
         fusionado.derecha = derecha
-        heapq.heappush(heap, fusionado)
-
-    return heap[0]
+        nodos.append(fusionado)
+    return nodos[0]
 
 # Función para crear los códigos de Huffman
 def crear_codigos(nodo, codigo_actual, codigos):
     if nodo is None:
         return
-
     if nodo.caracter is not None:
         codigos[nodo.caracter] = codigo_actual
         return
-
     crear_codigos(nodo.izquierda, codigo_actual + "0", codigos)
     crear_codigos(nodo.derecha, codigo_actual + "1", codigos)
 
@@ -48,11 +40,9 @@ def comprimir_huffman(texto):
     frecuencia = defaultdict(int)
     for caracter in texto:
         frecuencia[caracter] += 1
-
     arbol_huffman = construir_arbol_huffman(frecuencia)
     codigos = {}
     crear_codigos(arbol_huffman, "", codigos)
-
     texto_comprimido = ''.join([codigos[caracter] for caracter in texto])
     return codigos, texto_comprimido
 
@@ -61,13 +51,11 @@ def descomprimir_huffman(texto_comprimido, codigos):
     codigos_invertidos = {v: k for k, v in codigos.items()}
     codigo_actual = ""
     texto_descomprimido = ""
-
     for bit in texto_comprimido:
         codigo_actual += bit
         if codigo_actual in codigos_invertidos:
             texto_descomprimido += codigos_invertidos[codigo_actual]
             codigo_actual = ""
-
     return texto_descomprimido
 
 # Función para convertir una cadena de bits en bytes
@@ -75,12 +63,12 @@ def bits_a_bytes(bits):
     arreglo_bytes = bytearray()
     for i in range(0, len(bits), 8):
         byte = bits[i:i+8]
-        arreglo_bytes.append(int(byte, 2))  # Convierte cada bloque de 8 bits en un byte
+        arreglo_bytes.append(int(byte, 2))
     return bytes(arreglo_bytes)
 
 # Función para leer un archivo binario y convertirlo a bits
 def bytes_a_bits(datos_bytes):
-    bits = ''.join(f"{byte:08b}" for byte in datos_bytes)  # Convierte cada byte a 8 bits
+    bits = ''.join(f"{byte:08b}" for byte in datos_bytes)
     return bits
 
 # Función para cargar el archivo
@@ -121,10 +109,7 @@ def comprimir_archivo():
         codigos, texto_comprimido = comprimir_huffman(contenido)
         bits_comprimidos = bits_a_bytes(texto_comprimido)
 
-        # Convertir el diccionario de Huffman a JSON
         codigos_json = json.dumps(codigos)
-
-        # Agregar una secuencia especial de separación entre el diccionario y los bits comprimidos
         separador = "___"
         datos_binarios = codigos_json.encode('utf-8') + separador.encode('utf-8') + bits_comprimidos
 
@@ -134,7 +119,9 @@ def comprimir_archivo():
             with open(ruta_archivo_comprimido, "wb") as archivo_binario:
                 archivo_binario.write(datos_binarios)
 
-        messagebox.showinfo("Éxito", "Archivo comprimido correctamente")
+            # Eliminar el archivo .txt original
+            os.remove(ruta_archivo)
+            messagebox.showinfo("Éxito", "Archivo comprimido correctamente y archivo .txt eliminado")
 
 # Función para descomprimir archivo con diccionario incluido
 def descomprimir_archivo():
@@ -144,7 +131,6 @@ def descomprimir_archivo():
             with open(ruta_archivo, "rb") as archivo_binario:
                 datos_binarios = archivo_binario.read()
 
-            # Buscar el separador que indica el final del diccionario
             separador = "___".encode('utf-8')
             indice_separador = datos_binarios.find(separador)
 
@@ -152,20 +138,22 @@ def descomprimir_archivo():
                 messagebox.showerror("Error", "No se encontró el separador de diccionario en el archivo.")
                 return
 
-            # Extraer el diccionario de Huffman (en JSON) y los bits comprimidos
             codigos_json = datos_binarios[:indice_separador].decode('utf-8')
             bits_comprimidos = datos_binarios[indice_separador + len(separador):]
 
-            # Convertir el diccionario desde JSON
             codigos = json.loads(codigos_json)
-
-            # Convertir los bytes comprimidos a la secuencia de bits
             texto_comprimido = bytes_a_bits(bits_comprimidos)
-
-            # Descomprimir el texto
             texto_descomprimido = descomprimir_huffman(texto_comprimido, codigos)
-            guardar_archivo(texto_descomprimido, "descomprimido.txt")
-            messagebox.showinfo("Éxito", "Archivo descomprimido correctamente")
+
+            # Crear la ruta para el archivo descomprimido
+            ruta_archivo_descomprimido = ruta_archivo.replace(".bin", ".txt")  # Cambiar la extensión a .txt
+
+            # Guardar el archivo descomprimido
+            guardar_archivo(texto_descomprimido, ruta_archivo_descomprimido)  # Usar la ruta correcta
+
+            # Eliminar el archivo .bin original
+            os.remove(ruta_archivo)
+            messagebox.showinfo("Éxito", "Archivo descomprimido correctamente y archivo .bin eliminado")
         except Exception as e:
             messagebox.showerror("Error", f"Ocurrió un error al descomprimir el archivo: {str(e)}")
 
